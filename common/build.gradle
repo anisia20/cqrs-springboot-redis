@@ -1,0 +1,95 @@
+buildscript {
+    ext {
+        springBootVersion = '2.1.4.RELEASE'
+        log4j2Version = '2.11.2'
+    }
+    repositories {
+        maven { url "https://jitpack.io" }
+        maven { url "http://repo.spring.io/milestone" }
+        maven { url 'https://repo.spring.io/libs-snapshot' }
+
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    maven { url "https://jitpack.io" }
+    maven { url "http://repo.spring.io/milestone" }
+    maven { url 'https://repo.spring.io/libs-snapshot' }
+
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    // jackson
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.7'
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.9.7'
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.7'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.7'
+
+    compile ("org.springframework.boot:spring-boot-starter-data-redis") // redis
+
+    compile group: 'org.springframework.data', name: 'spring-data-mongodb', version: '2.1.6.RELEASE'
+    compile group: 'org.mongodb', name: 'mongodb-driver', version: '3.8.2'
+    compile group: 'org.mongodb', name: 'mongodb-driver-core', version: '3.8.2'
+
+    compile group: 'io.lettuce', name: 'lettuce-core', version: '5.1.6.RELEASE'
+
+    // mybatis
+    compile 'mysql:mysql-connector-java'
+
+    // mybatis
+    compile group: 'org.mybatis', name: 'mybatis-spring', version: '1.3.1'
+    compile group: 'org.mybatis', name: 'mybatis', version: '3.4.4'
+
+    // hikariCP (db pool)
+    compile group: 'com.zaxxer', name: 'HikariCP', version: '3.3.1'
+
+    // apache common
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+
+    // jwt
+    compile('org.springframework.boot:spring-boot-starter-security')
+    compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.7.0'
+
+    //log4j2
+    compile ("org.springframework.boot:spring-boot-starter-log4j2")
+
+    // modelmapper
+    compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.4'
+
+    // bean validation
+    compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+
+    // ext lib
+    compile fileTree(dir:'libs', include:'*.jar')
+    compileOnly('org.projectlombok:lombok')
+    annotationProcessor ('org.projectlombok:lombok')
+}
+
+configurations {
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        exclude module: "logback-classic"
+    }
+}

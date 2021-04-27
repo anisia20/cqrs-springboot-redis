@@ -1,0 +1,193 @@
+buildscript {
+    ext {
+        springBootVersion = '2.1.4.RELEASE'
+
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.9.RELEASE"
+    }
+}
+
+
+// 플러그인 지정
+plugins {
+    id 'com.palantir.docker' version '0.25.0'
+}
+
+allprojects {
+    apply plugin: 'jacoco'
+    jacoco {
+        toolVersion = '0.8.2'
+    }
+
+    repositories {
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    apply plugin: 'eclipse'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = 'org.iptime.glegend'
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    // gralde 버전 지정
+    task wrapper(type: Wrapper) {
+        gradleVersion = "6.0"
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+        maven { url "http://www.datanucleus.org/downloads/maven2" }
+
+    }
+
+    test {
+        useJUnitPlatform {
+//			includeTags "fast", "smoke & feature-a" //@Tag("대응")
+            includeEngines "junit-jupiter"
+        }
+        reports.html.enabled = false
+    }
+
+    jacocoTestReport {
+        reports {
+            html.enabled = true
+            xml.enabled = true
+            csv.enabled = false
+        }
+    }
+    check.dependsOn jacocoTestReport
+
+    task initSourceFolders {
+        sourceSets*.java.srcDirs*.each {
+            if( !it.exists() ) {
+                it.mkdirs()
+            }
+        }
+
+        sourceSets*.resources.srcDirs*.each {
+            if( !it.exists() ) {
+                it.mkdirs()
+            }
+        }
+    }
+
+    dependencies {
+        // Spring
+        implementation('org.springframework.boot:spring-boot-starter-aop')
+        implementation('org.springframework.boot:spring-boot-starter-cache')
+        implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+        implementation('org.springframework.boot:spring-boot-starter-mail')
+        implementation('org.springframework.boot:spring-boot-starter-validation')
+        implementation('org.springframework.boot:spring-boot-starter-web')
+        implementation('org.springframework.boot:spring-boot-starter-security')
+
+        // lang
+        implementation('org.apache.commons:commons-lang3')
+
+        // database
+        // jdbc
+        implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+        implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.0'
+        runtimeOnly 'mysql:mysql-connector-java:8.0.16'
+        implementation('mysql:mysql-connector-java')
+
+        // swagger
+        implementation('io.springfox:springfox-swagger2:2.8.0')
+        implementation('io.springfox:springfox-swagger-ui:2.8.0')
+
+        // test & dev tools
+        implementation("org.springframework.boot:spring-boot-devtools")
+        implementation('org.springframework.retry:spring-retry')
+
+        testImplementation('org.springframework.boot:spring-boot-starter-test')
+        testImplementation('org.springframework.restdocs:spring-restdocs-mockmvc')
+
+        // junit5
+        testImplementation('org.junit.jupiter:junit-jupiter-api:5.5.2')
+        testRuntimeOnly ('org.junit.jupiter:junit-jupiter-engine:5.5.2')
+        testImplementation ('org.junit.platform:junit-platform-launcher:1.5.2')
+
+        // lombok
+        compileOnly	('org.projectlombok:lombok:1.18.8')
+        annotationProcessor ('org.projectlombok:lombok:1.18.8')
+
+        testAnnotationProcessor ('org.projectlombok:lombok:1.18.8')
+        testCompileOnly ('org.projectlombok:lombok:1.18.8')
+        testImplementation('org.springframework.security:spring-security-test:5.2.2.RELEASE')
+
+        // session
+        implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+        //compile 'org.springframework.session:spring-session-data-redis'
+        compile 'redis.clients:jedis:3.2.0'
+
+        //implementation 'org.springframework.session:spring-session-core'
+        implementation 'org.springframework.kafka:spring-kafka'
+
+        implementation('commons-io:commons-io:2.5')
+        implementation('org.jsoup:jsoup:1.7.3')
+        implementation('com.google.guava:guava:21.0')
+
+        //compile 'com.google.guava:guava:29.0-jre'
+        compile 'org.apache.httpcomponents:httpclient:4.5.10'
+        compile 'com.google.code.gson:gson:2.8.5'
+        compile 'com.fasterxml.jackson.core:jackson-databind:2.11.2'
+        compile 'com.fasterxml.jackson.core:jackson-core:2.11.2'
+        compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.11.2'
+
+        // modelmapper
+        compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.4'
+
+        //jwt
+        compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.7.0'
+    }
+}
+
+task jacocoRootReport(type: JacocoReport) {
+    dependsOn = subprojects.test
+
+    getAdditionalSourceDirs().setFrom(files(subprojects.sourceSets.main.allSource.srcDirs))
+    getSourceDirectories().setFrom(files(subprojects.sourceSets.main.allSource.srcDirs))
+    getClassDirectories().setFrom(files(subprojects.sourceSets.main.output))
+    getExecutionData().setFrom(fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec"))
+
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        csv.enabled = false
+    }
+    onlyIf = {
+        true
+    }
+    doFirst {
+        getExecutionData().setFrom(files(executionData.findAll {
+            it.exists()
+        }))
+    }
+}
+
+configurations {
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        exclude module: "logback-classic"
+    }
+}
+
+
+
+
