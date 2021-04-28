@@ -28,15 +28,9 @@ public class JwtCmd {
     JsonCmd jsonCmd;
 
     public static String jwtTyp = "JWT";
-
-    //	@Value("${jwt.client.iss}")
     public static String jwtIss = "glegend";
-
-    //	@Value("${jwt.client.expTimeMilli}")
-//	public static long jwtExpTimeMilli = 30*1000; // test용도
-    public static long jwtExpTimeMilli = 60*1000*60;
-
-    //	@Value("${jwt.client.expTimeRefreshMilli}")
+    public static String jwtSecretKey = "glegend";
+	public static long jwtExpTimeMilli = 30*1000; // test용도
     public static long jwtExpTimeRefreshMilli = 25*60*60*1000;
 
     public Claims getPayload(String token) {
@@ -47,14 +41,10 @@ public class JwtCmd {
                 return null;
             }
             byte[] payload = Base64.getDecoder().decode(body[1]);
-            // log.debug("token decode. token len={}", payload.length);
-
             JwtMap map = (JwtMap) jsonCmd.jsonStringToObj(new String(payload), JwtMap.class);
-            // log.debug("token map={}", map);
 
             Claims claims = null;
             if (map != null) claims = new DefaultClaims(map);
-            // log.debug("token claims={}", claims);
 
             return claims;
         } catch(Exception e) {
@@ -78,8 +68,6 @@ public class JwtCmd {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(expiration);
         calendar.add(Calendar.SECOND, -10);
-
-//		log.debug("exp = {}", Timex.toFormat14(expiration.getTime()));
         return calendar.getTime().before(new Date());
     }
 
@@ -100,8 +88,6 @@ public class JwtCmd {
 
         return expiration.before(new Date());
     }
-
-    ///////////////////////////////////////
 
     private Claims getAllClaimsFromToken(String jwtCliSecretKey, String token) {
         Claims claims = null;
@@ -140,18 +126,7 @@ public class JwtCmd {
     public Boolean validateToken(String jwtCliSecretKey, String token) {
         return !isTokenExpired(jwtCliSecretKey, token);
     }
-
-    ///////////////////////////////////////
-
-    /**
-     * @param jwtCliSecretKey
-     * @param cliId
-     * @param ipPattern 토큰 요청 Client IP Pattern (ex. "192.168.*,192.167.*" )
-     * @param accessUrl 허용가능 url
-     * @param isRefresh
-     * @return
-     */
-    public String getClientToken(
+    public String getToken(
             String jwtCliSecretKey,
             String cliId,
             String ipPattern,
@@ -164,63 +139,27 @@ public class JwtCmd {
         return genToken(jwtCliSecretKey, jwtExpTimeMilli, jwtExpTimeRefreshMilli, jwtIss, cliId, claims, isRefresh);
     }
 
-    public String getTelToken(
+    public String getToken(
             String jwtCliSecretKey,
-            String rcsId
+            String cliId,
+            String accessUrl,
+            boolean isRefresh
     ) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("rcsId", rcsId); // 인증요청한 클라이언트 아이피
-        return genToken(jwtCliSecretKey, jwtExpTimeMilli, jwtExpTimeRefreshMilli, jwtIss, rcsId, claims, false);
-    }
-
-    public String getBPToken(
-            String jwtSecretKey,
-            String bpId,
-            String ipPattern,
-            String accessUrl
-    ) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("bpId", bpId); // 토큰 사용 대상 목적(리프레쉬, 목록조회) 이 되는 corpId
-        claims.put("sIp", ipPattern); // 브랜드 포탈의 relay IP
         claims.put("accessUrl", accessUrl); // 허용가능한 url
-
-        return genToken(jwtSecretKey, jwtExpTimeMilli, jwtExpTimeRefreshMilli, jwtIss, bpId, claims, false);
+        return genToken(jwtCliSecretKey, jwtExpTimeMilli, jwtExpTimeRefreshMilli, jwtIss, cliId, claims, isRefresh);
     }
 
-    public String getAdminToken(
-            String jwtSecretKey,
-            String adminid,
-            String ipPattern,
-            String accessUrl
+    public String getToken(
+            String cliId,
+            String accessUrl,
+            boolean isRefresh
     ) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("adminid", adminid); // 토큰 사용 대상 목적(리프레쉬, 목록조회) 이 되는 corpId
-        claims.put("sIp", ipPattern); // 어드민 설정 relay IP
         claims.put("accessUrl", accessUrl); // 허용가능한 url
-
-        return genToken(jwtSecretKey, jwtExpTimeMilli, jwtExpTimeRefreshMilli, jwtIss, adminid, claims, false);
+        return genToken(jwtSecretKey, jwtExpTimeMilli, jwtExpTimeRefreshMilli, jwtIss, cliId, claims, isRefresh);
     }
 
-    // 중계홈
-    public String getHpToken(
-            String jwtSecretKey,
-            String hpid,
-            String ipPattern,
-            String accessUrl
-    ) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("hp_id", hpid); // 토큰 사용 대상 목적(리프레쉬, 목록조회) 이 되는 corpId
-        claims.put("sIp", ipPattern); // 중계홈 설정 relay IP
-        claims.put("accessUrl", accessUrl); // 허용가능한 url
-
-        return genToken(jwtSecretKey, jwtExpTimeMilli, jwtExpTimeRefreshMilli, jwtIss, hpid, claims, false);
-    }
-
-    /**
-     * Token 생성
-     * @param isRefresh refresh 토큰 여부
-     * @return 토큰 문자열
-     */
     private String genToken(
             String jwtSecretKey,
             long jwtExpTimeMilli,
@@ -233,7 +172,7 @@ public class JwtCmd {
         try {
             Date createdDate = new Date();
 
-            claims.put(Claims.ISSUER, jwtIss); // 토큰 발행자 정보
+            claims.put(Claims.ISSUER, jwtIss);
             claims.put("typ", jwtTyp);
 
             Date expirationDate = null;
@@ -243,7 +182,7 @@ public class JwtCmd {
                 expirationDate = new Date(createdDate.getTime() + jwtExpTimeMilli);
 
             return Jwts.builder()
-                    .setClaims(claims) // payload 로 넣으면 받는 부분이 애매하네??
+                    .setClaims(claims)
 //					.setPayload( claims )
                     .setSubject(id)
                     .setIssuedAt(createdDate)

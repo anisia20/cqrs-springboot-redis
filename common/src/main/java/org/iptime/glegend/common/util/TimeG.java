@@ -229,8 +229,8 @@ public class TimeG {
 
     public static void main(String args[]) {
         // addDate(String pattern, String date, int type, int addCnt)
-        String rslt = new TimeG().addDate("yyyyMM", "201801", Calendar.MONTH, -2);
-        System.out.println(rslt);
+        String result = new TimeG().addDate("yyyyMM", "201801", Calendar.MONTH, -2);
+        System.out.println(result);
 
     }
 }

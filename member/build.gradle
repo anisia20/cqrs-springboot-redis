@@ -1,0 +1,153 @@
+buildscript {
+    ext {
+        springBootVersion = '2.1.4.RELEASE'
+        log4j2Version = '2.11.2'
+    }
+    repositories {
+        maven { url "https://jitpack.io" }
+        maven { url "http://repo.spring.io/milestone" }
+        maven { url 'https://repo.spring.io/libs-snapshot' }
+
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+plugins {
+    id "org.asciidoctor.convert" version "1.5.3"
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+compileJava.dependsOn(processResources)
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs = ["-Xlint:unchecked", "-Xlint:deprecation", "-parameters"]
+}
+
+repositories {
+    maven { url "https://jitpack.io" }
+    maven { url "http://repo.spring.io/milestone" }
+    maven { url 'https://repo.spring.io/libs-snapshot' }
+
+    mavenLocal()
+    mavenCentral()
+}
+
+ext['springCloudVersion'] = 'Greenwich.RC2'
+
+// restdocs
+ext['spring-restdocs.version'] = '2.0.4.RELEASE'
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
+dependencies {
+    // webflux
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: '2.1.4.RELEASE'
+
+    // rest docs
+    compile "org.springframework.restdocs:spring-restdocs-webtestclient:${project.ext['spring-restdocs.version']}"
+    asciidoctor "org.springframework.restdocs:spring-restdocs-asciidoctor:${project.ext['spring-restdocs.version']}"
+    compile group: 'org.springframework.restdocs', name: 'spring-restdocs-core', version: '2.0.4.RELEASE'
+
+    // log4j2
+
+    // log4j2 Async
+    compile group: 'com.lmax', name: 'disruptor', version: '3.3.4'
+
+    // hibernate validation
+    compile group: 'org.glassfish', name: 'javax.el', version: '3.0.0'
+    compile group: 'org.glassfish.web', name: 'javax.el', version: '2.2.4'
+
+    // apache common
+    compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.6.1'
+
+    // spring jdbc
+    compile group: 'org.springframework', name: 'spring-jdbc', version: '5.1.5.RELEASE'  // db 연동 시 필요 ( rcs-gw-common autoconfigure 실행 방지)
+
+    // lombok
+    compileOnly('org.projectlombok:lombok')
+    annotationProcessor ('org.projectlombok:lombok')
+
+    //multi part
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+
+    // jwt
+    compile('org.springframework.boot:spring-boot-starter-security')
+    compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.7.0'
+
+    // ssl
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.8'
+    compile group: 'org.apache.httpcomponents', name: 'httpasyncclient', version: '4.1.4'
+
+    compile fileTree(dir:'libs', include:'*.jar')
+    compile project(':common')
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('io.projectreactor:reactor-test')
+    testCompile('org.projectlombok:lombok')
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+configurations {
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        exclude group: 'io.netty', module: 'netty-transport-native-epoll'
+        exclude module: "logback-classic"
+    }
+}
+
+test {
+    systemProperty "java.net.preferIPv4Stack", "true"
+    outputs.dir snippetsDir
+    testLogging.showStandardStreams = true
+}
+// rest docs
+asciidoctor {
+    inputs.dir snippetsDir
+    dependsOn test
+}
+
+asciidoctor.doLast {
+    copy {
+        from "build/asciidoc/html5"
+        into "src/main/resources/docs"
+        include 'client.html'
+    }
+}
+
+asciidoctor.doLast {
+    copy {
+        from "build/asciidoc/html5"
+        into "docs"
+        include '**'
+    }
+}
+
+bootJar {
+    enabled = true
+    baseName = 'member'
+    version = '1.0'
+    dependsOn asciidoctor
+}
+
+jar {
+    enabled = false
+}

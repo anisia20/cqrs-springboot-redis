@@ -1,5 +1,6 @@
 package kr.co.uplus.common.components;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Hashtable;
 
@@ -8,6 +9,7 @@ import org.iptime.glegend.common.command.JwtCmd;
 import org.iptime.glegend.common.config.ModelMapperG;
 import org.iptime.glegend.config.redis.command.RedisCmd;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import lombok.Data;

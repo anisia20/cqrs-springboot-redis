@@ -51,5 +51,10 @@
       <option name="name" value="maven7" />
       <option name="url" value="http://repo.spring.io/milestone" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="BintrayJCenter" />
+      <option name="name" value="BintrayJCenter" />
+      <option name="url" value="https://jcenter.bintray.com/" />
+    </remote-repository>
   </component>
 </project>

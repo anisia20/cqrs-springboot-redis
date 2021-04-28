@@ -411,20 +411,20 @@ public class RedisCmd {
 
 
     public List<String> getKeyList( String pattern ) {
-        List<String> rslt = new ArrayList<String>();
+        List<String> result = new ArrayList<String>();
         try {
             Set<String> keys = template.keys(pattern);
             if (keys == null) return null;
 
-            rslt.addAll(keys);
+            result.addAll(keys);
         } catch (Exception e) {
             log.error(e.toString());
         }
-        return rslt;
+        return result;
     }
 
     public List<String> getKeyList( String pattern, Integer n_res ) {
-        List<String> rslt = new ArrayList<String>();
+        List<String> result = new ArrayList<String>();
         try {
             Set<String> keys = template.keys(pattern);
             if (keys == null) {
@@ -432,52 +432,52 @@ public class RedisCmd {
                 return null;
             }
 
-            rslt.addAll(keys);
+            result.addAll(keys);
         } catch (Exception e) {
             log.error(e.toString());
             n_res = -3;
         }
-        return rslt;
+        return result;
     }
 
     public HashMap<String, Object> getValueList(String key, String pattern ) {
         HashMap<String, Object> result = new HashMap<>();
-        Cursor<Entry<Object, Object>> rslt = null;
+        Cursor<Entry<Object, Object>> result = null;
         try {
             ScanOptions options = ScanOptions.scanOptions().match(pattern).build();
-            rslt = template.opsForHash().scan(key, options);
-            if (rslt == null) return null;
+            result = template.opsForHash().scan(key, options);
+            if (result == null) return null;
 
-            while(rslt.hasNext()) {
-                Entry<Object, Object> bytes = rslt.next();
+            while(result.hasNext()) {
+                Entry<Object, Object> bytes = result.next();
                 result.put((String) bytes.getKey(), bytes.getValue());
             }
 
         } catch (Exception e) {
             log.error(e.toString());
         } finally {
-            if (rslt != null) try { rslt.close(); } catch (Exception e) {}
+            if (result != null) try { result.close(); } catch (Exception e) {}
         }
         return result;
     }
 
     public HashMap<String, Object> getFieldList( String key, String pattern ) {
         HashMap<String, Object> result = new HashMap<>();
-        Cursor<Entry<Object, Object>> rslt = null;
+        Cursor<Entry<Object, Object>> result = null;
         try {
             ScanOptions options = ScanOptions.scanOptions().match(pattern).build();
-            rslt = template.opsForHash().scan(key, options);
-            if (rslt == null) return null;
+            result = template.opsForHash().scan(key, options);
+            if (result == null) return null;
 
-            while(rslt.hasNext()) {
-                Entry<Object, Object> bytes = rslt.next();
+            while(result.hasNext()) {
+                Entry<Object, Object> bytes = result.next();
                 result.put((String) bytes.getKey(), bytes.getKey());
             }
 
         } catch (Exception e) {
             log.error(e.toString());
         } finally {
-            if (rslt != null) try { rslt.close(); } catch (Exception e) {}
+            if (result != null) try { result.close(); } catch (Exception e) {}
         }
         return result;
     }
@@ -509,15 +509,15 @@ public class RedisCmd {
     }
 
     public Set<Object> zRange(String key, String pattern) {
-        Cursor<TypedTuple<Object>> rslt = null;
+        Cursor<TypedTuple<Object>> result = null;
         try {
             ScanOptions options = ScanOptions.scanOptions().match(pattern).build();
-            rslt = template.opsForZSet().scan(key, options);
-            if (rslt == null) return null;
+            result = template.opsForZSet().scan(key, options);
+            if (result == null) return null;
 
             Set<Object> lst = new HashSet<>();
-            while(rslt.hasNext()) {
-                TypedTuple<Object> bytes = rslt.next();
+            while(result.hasNext()) {
+                TypedTuple<Object> bytes = result.next();
                 Object obj = bytes.getValue();
                 lst.add(obj);
             }
@@ -529,7 +529,7 @@ public class RedisCmd {
             log.error(e.getMessage());
             return null;
         } finally {
-            if (rslt != null) { try { rslt.close(); } catch(Exception e) {} }
+            if (result != null) { try { result.close(); } catch(Exception e) {} }
         }
     }
 

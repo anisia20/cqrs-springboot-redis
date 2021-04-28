@@ -1,8 +1,16 @@
 package org.iptime.glegend.utils;
 
 import lombok.extern.log4j.Log4j2;
+import org.iptime.glegend.common.code.ResultCode;
+import org.iptime.glegend.common.model.Result;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.ObjectUtils;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+import javax.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -12,6 +20,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Log4j2
 public class Util {
@@ -20,6 +29,8 @@ public class Util {
     public static boolean isNullOrEmpty(Object obj) {
         return ObjectUtils.isEmpty(obj);
     }
+    static Validator validator;
+
     public static String nullConv( String s ) {
         if( s == null ) {
             return "";
@@ -555,6 +566,89 @@ public class Util {
         } catch (Exception var2) {
             return -9999999.0F;
         }
+    }
+
+    public static String getRemoteIpAddr(ServerHttpRequest request) {
+
+        String ip = "";
+        if (isNullOrEmpty(request.getRemoteAddress()) == false) {
+            ip = request.getRemoteAddress().getAddress().getHostAddress();
+        }
+
+        List<String> xForwardedValues = request.getHeaders().get("X-Forwarded-For");
+        if (isNullOrEmpty(xForwardedValues)) {
+            return ip;
+        }
+
+        if (xForwardedValues.size() > 1) {
+            log.warn("Multiple X-Forwarded-For headers found, discarding all");
+            return ip;
+        }
+
+        ip = xForwardedValues.get(0);
+        return ip;
+    }
+
+    public static boolean isValidIPAddr( String ip, String[] pattern )
+    {
+        boolean isIpOk = false;
+        for (int i=0; i < pattern.length; i++) {
+            String p = pattern[i].trim().replaceAll("\\.", "\\\\.").replaceAll("\\*", ".*");
+            if ("".equals(p)) continue;
+            if ( ip.matches( p ) == true ) { isIpOk = true; break; }
+        }
+
+        return isIpOk;
+    }
+
+    @Bean
+    public static void getValidator() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+    }
+
+    public static boolean isValid(Object source, Result result) {
+        Set<ConstraintViolation<Object>> violations = validator.validate(source);
+        for (ConstraintViolation<Object> violation : violations) {
+            result.setResultFail(ResultCode.getResultCd(ResultCode.Prefix.PREFIX_R.key+violation.getMessage()));
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isValidChar(String regexp, String col) {
+        try {
+            if (isNullOrEmpty(col)) return false;
+            return (Pattern.compile(regexp).matcher(col).find());
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return false;
+        }
+    }
+
+
+    public static boolean isValidByteSize(int maxSize, String col) {
+        try {
+            if (isNullOrEmpty(col)) return false;
+            return (col.getBytes().length <= maxSize);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean isValidExt( String ext, String[] pattern )
+    {
+        boolean isOk = false;
+        for (int i=0; i < pattern.length; i++) {
+            String p = pattern[i].trim().replaceAll("\\*", ".*");
+            if ("".equals(p)) continue;
+            if ( ext.matches( p ) == true ) { isOk = true; break; }
+        }
+
+        return isOk;
     }
 
     public static void main(String[] args) {

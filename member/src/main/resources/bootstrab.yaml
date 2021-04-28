@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: member
+
+server:
+  port: 8051
+
+  netty:
+    reader-idle-time: 60000
+    writer-idle-time: 60000
+
+member:
+  debug_log: true

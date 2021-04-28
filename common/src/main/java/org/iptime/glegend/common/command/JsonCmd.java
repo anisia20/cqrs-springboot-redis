@@ -189,14 +189,14 @@ public class JsonCmd {
      * @return
      */
     public String hashmapToJsonString(HashMap<String, String> hm) {
-        String rslt = "";
+        String result = "";
         try {
-            rslt = mapper.writeValueAsString(hm);
+            result = mapper.writeValueAsString(hm);
         } catch (Exception e) {
             log.error(e.getMessage());
-            rslt = "";
+            result = "";
         }
-        return rslt;
+        return result;
     }
 
     /**
@@ -215,14 +215,14 @@ public class JsonCmd {
      * @return
      */
     public String objToJsonString(Object obj) {
-        String rslt = "";
+        String result = "";
         try {
-            rslt = mapper.writeValueAsString(obj);
+            result = mapper.writeValueAsString(obj);
         } catch (Exception e) {
             log.error(e.getMessage());
-            rslt = "";
+            result = "";
         }
-        return rslt;
+        return result;
     }
 
     /**

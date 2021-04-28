@@ -6,8 +6,8 @@ import java.text.DecimalFormat;
 import java.util.Random;
 
 public class UuidMaker {
-    public static final String TT_CAB = "1";
-    public static final String TT_IMG = "2";
+    public static final String TGC = "1";
+    public static final String TGI = "2";
     TimeG time14 = new TimeG("yyyyMMddHHmmss");
     DecimalFormat df2 = new DecimalFormat("00");
     DecimalFormat df3 = new DecimalFormat("000");

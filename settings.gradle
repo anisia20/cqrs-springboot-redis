@@ -1,3 +1,4 @@
 rootProject.name = 'cqrs-springboot-redis'
 include 'common'
+include 'member'
 
