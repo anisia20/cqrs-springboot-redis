@@ -1,6 +1,7 @@
 package org.iptime.glegend.config.redis.command;
 
 import lombok.extern.log4j.Log4j2;
+import org.iptime.glegend.common.util.TimeG;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
@@ -411,20 +412,20 @@ public class RedisCmd {
 
 
     public List<String> getKeyList( String pattern ) {
-        List<String> result = new ArrayList<String>();
+        List<String> rslt = new ArrayList<String>();
         try {
             Set<String> keys = template.keys(pattern);
             if (keys == null) return null;
 
-            result.addAll(keys);
+            rslt.addAll(keys);
         } catch (Exception e) {
             log.error(e.toString());
         }
-        return result;
+        return rslt;
     }
 
     public List<String> getKeyList( String pattern, Integer n_res ) {
-        List<String> result = new ArrayList<String>();
+        List<String> rslt = new ArrayList<String>();
         try {
             Set<String> keys = template.keys(pattern);
             if (keys == null) {
@@ -432,52 +433,52 @@ public class RedisCmd {
                 return null;
             }
 
-            result.addAll(keys);
+            rslt.addAll(keys);
         } catch (Exception e) {
             log.error(e.toString());
             n_res = -3;
         }
-        return result;
+        return rslt;
     }
 
-    public HashMap<String, Object> getValueList(String key, String pattern ) {
+    public HashMap<String, Object> getValueList( String key, String pattern ) {
         HashMap<String, Object> result = new HashMap<>();
-        Cursor<Entry<Object, Object>> result = null;
+        Cursor<Entry<Object, Object>> rslt = null;
         try {
             ScanOptions options = ScanOptions.scanOptions().match(pattern).build();
-            result = template.opsForHash().scan(key, options);
-            if (result == null) return null;
+            rslt = template.opsForHash().scan(key, options);
+            if (rslt == null) return null;
 
-            while(result.hasNext()) {
-                Entry<Object, Object> bytes = result.next();
+            while(rslt.hasNext()) {
+                Entry<Object, Object> bytes = rslt.next();
                 result.put((String) bytes.getKey(), bytes.getValue());
             }
 
         } catch (Exception e) {
             log.error(e.toString());
         } finally {
-            if (result != null) try { result.close(); } catch (Exception e) {}
+            if (rslt != null) try { rslt.close(); } catch (Exception e) {}
         }
         return result;
     }
 
     public HashMap<String, Object> getFieldList( String key, String pattern ) {
         HashMap<String, Object> result = new HashMap<>();
-        Cursor<Entry<Object, Object>> result = null;
+        Cursor<Entry<Object, Object>> rslt = null;
         try {
             ScanOptions options = ScanOptions.scanOptions().match(pattern).build();
-            result = template.opsForHash().scan(key, options);
-            if (result == null) return null;
+            rslt = template.opsForHash().scan(key, options);
+            if (rslt == null) return null;
 
-            while(result.hasNext()) {
-                Entry<Object, Object> bytes = result.next();
+            while(rslt.hasNext()) {
+                Entry<Object, Object> bytes = rslt.next();
                 result.put((String) bytes.getKey(), bytes.getKey());
             }
 
         } catch (Exception e) {
             log.error(e.toString());
         } finally {
-            if (result != null) try { result.close(); } catch (Exception e) {}
+            if (rslt != null) try { rslt.close(); } catch (Exception e) {}
         }
         return result;
     }
@@ -509,15 +510,15 @@ public class RedisCmd {
     }
 
     public Set<Object> zRange(String key, String pattern) {
-        Cursor<TypedTuple<Object>> result = null;
+        Cursor<TypedTuple<Object>> rslt = null;
         try {
             ScanOptions options = ScanOptions.scanOptions().match(pattern).build();
-            result = template.opsForZSet().scan(key, options);
-            if (result == null) return null;
+            rslt = template.opsForZSet().scan(key, options);
+            if (rslt == null) return null;
 
             Set<Object> lst = new HashSet<>();
-            while(result.hasNext()) {
-                TypedTuple<Object> bytes = result.next();
+            while(rslt.hasNext()) {
+                TypedTuple<Object> bytes = rslt.next();
                 Object obj = bytes.getValue();
                 lst.add(obj);
             }
@@ -529,7 +530,7 @@ public class RedisCmd {
             log.error(e.getMessage());
             return null;
         } finally {
-            if (result != null) { try { result.close(); } catch(Exception e) {} }
+            if (rslt != null) { try { rslt.close(); } catch(Exception e) {} }
         }
     }
 
@@ -596,16 +597,16 @@ public class RedisCmd {
         }
     }
 
-//    public long zSize(String key, String date14) {
-//        try {
-//            long min = Timex.toMillis(date14+"000", "yyyyMMddHHmmssSSS");
-//            long max = min+Timex.ONE_SECOND_MILLIS-1;
-//            long l_res = template.opsForZSet().count(key, min, max);
-//            return l_res;
-//        } catch (Exception e){
-//            log.error(e.getMessage());
-//            return -1;
-//        }
-//    }
+    public long zSize(String key, String date14) {
+        try {
+            long min = TimeG.toMillis(date14+"000", "yyyyMMddHHmmssSSS");
+            long max = min+TimeG.ONE_SECOND_MILLIS-1;
+            long l_res = template.opsForZSet().count(key, min, max);
+            return l_res;
+        } catch (Exception e){
+            log.error(e.getMessage());
+            return -1;
+        }
+    }
 
 }

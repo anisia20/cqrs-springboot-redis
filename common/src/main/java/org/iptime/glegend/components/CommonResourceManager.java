@@ -1,4 +1,4 @@
-package kr.co.uplus.common.components;
+package org.iptime.glegend.common.components;
 
 import java.time.Duration;
 import java.util.Arrays;

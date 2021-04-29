@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.TimeoutOptions;
 import org.iptime.glegend.utils.Util;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,42 +21,43 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
+@Configuration
 public class RedisConfigForLettuce {
 
-    @Value("${redis.mode}")
+    @Value("${redis.mode:standalone}")
     private String mode;
 
-    @Value("${redis.master}")
+    @Value("${redis.master:}")
     private String master;
 
-    @Value("${redis.db_num}")
+    @Value("${redis.db_num:0}")
     private int dbNum;
 
-    @Value("${redis.password}")
+    @Value("${redis.password:}")
     private String pwd;
 
-    @Value("${redis.standalone.host}")
+    @Value("${redis.standalone.host:localhost}")
     private String sdHost;
 
-    @Value("${redis.standalone.port}")
+    @Value("${redis.standalone.port:6379}")
     private int sdPort;
 
-    @Value("${redis.sentinels.host}")
+    @Value("${redis.sentinels.host:}")
     private String[] stHost;
 
-    @Value("${redis.sentinels.port}")
+    @Value("${redis.sentinels.port:}")
     private int[] stPort;
 
-    @Value("${redis.cluster.host}")
+    @Value("${redis.cluster.host:}")
     private String[] ctHost;
 
-    @Value("${redis.cluster.port}")
+    @Value("${redis.cluster.port:}")
     private int[] ctPort;
 
-    @Value("${redis.timeout.cmdSec}")
+    @Value("${redis.timeout.cmdSec:2}")
     private int cmdSec;
 
-    @Value("${spring.profiles.active}")
+    @Value("${spring.profiles.active:}")
     private String activeProfile;
 
     @Primary

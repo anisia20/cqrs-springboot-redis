@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.iptime.glegend.common.components.CommonResourceManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class AuthService {
     JwtCmd jwtCmd;
 
     @Autowired
-    kr.co.uplus.common.components.CommonResourceManager commonResourceManager;
+    CommonResourceManager commonResourceManager;
 
     @Autowired
     AuthManager authenticationManager;

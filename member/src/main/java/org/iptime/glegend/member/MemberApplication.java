@@ -8,11 +8,20 @@ import javax.annotation.PreDestroy;
 import org.iptime.glegend.common.command.JsonCmd;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ComponentScans;
 import org.springframework.core.env.AbstractEnvironment;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
+@SpringBootApplication
+@EnableScheduling
 @Log4j2
+@ComponentScans(value = {
+        @ComponentScan("org.iptime.glegend"),
+})
 public class MemberApplication {
 
     @Autowired
