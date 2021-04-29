@@ -7,9 +7,12 @@ import java.util.Hashtable;
 import org.iptime.glegend.common.command.JsonCmd;
 import org.iptime.glegend.common.command.JwtCmd;
 import org.iptime.glegend.common.config.ModelMapperG;
+import org.iptime.glegend.common.constants.RedisConstants;
+import org.iptime.glegend.common.util.UuidMaker;
 import org.iptime.glegend.config.redis.command.RedisCmd;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import lombok.Data;
@@ -33,10 +36,29 @@ public class CommonResourceManager {
     @Autowired
     ModelMapperG modelMapper;
 
-    /**
-     * @param key
-     * @param obj
-     */
+    @Bean
+    public UuidMaker getKeyMaker(){
+        try {
+            Object obj = resources.get(RedisConstants.CQRS_S_KEYGEN_SVRKEY_MEMBER.key);
+            if(obj==null) {
+                long num = getRedisCmd().incValue(RedisConstants.CQRS_S_KEYGEN_SVRKEY_MEMBER.key);
+                if (num < 0 || num > 99) {
+                    getRedisCmd().set(RedisConstants.CQRS_S_KEYGEN_SVRKEY_MEMBER.key,0);
+                    num = 0;
+                }
+
+                UuidMaker km = new UuidMaker((int) num);
+                resources.put(RedisConstants.CQRS_S_KEYGEN_SVRKEY_MEMBER.key, km);
+                return km;
+            } else {
+                UuidMaker km = (UuidMaker) obj;
+                return km;
+            }
+        } catch (Exception e) {
+            log.error("UuidMaker gathering fail. err={}", e.toString(), e);
+            return null;
+        }
+    }
     public synchronized void put(String key, Object obj){
         try {
             if(resources.containsKey(key))

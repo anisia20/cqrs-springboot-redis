@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import java.text.DecimalFormat;
 import java.util.Random;
 
-@Component
 public class UuidMaker {
     public static final String TGC = "1";
     public static final String TGI = "2";

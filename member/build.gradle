@@ -74,7 +74,7 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.6.1'
 
     // spring jdbc
-    compile group: 'org.springframework', name: 'spring-jdbc', version: '5.1.5.RELEASE'  // db 연동 시 필요 ( rcs-gw-common autoconfigure 실행 방지)
+    // compile group: 'org.springframework', name: 'spring-jdbc', version: '5.1.5.RELEASE'
 
     // lombok
     compileOnly('org.projectlombok:lombok')
