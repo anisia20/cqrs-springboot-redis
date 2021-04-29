@@ -276,3 +276,17 @@ $4
 josm
 $209
 {"@class":"org.iptime.glegend.common.model.redis.ClientDto","id":"josm","pwd":"2757cb3cafc39af451abb2697be79b4ab61d63d74d85b0418629de8c26811b529f3f3780d0150063ff55a2beee74c4ec102a2a2731a1f1f7f10d473ad18a6a87"}
+*2
+$4
+INCR
+$27
+CQRS_S_KEYGEN_SVRKEY_MEMBER
+*4
+$4
+HSET
+$13
+CQRS_H_CLIENT
+$4
+josm
+$209
+{"@class":"org.iptime.glegend.common.model.redis.ClientDto","id":"josm","pwd":"2757cb3cafc39af451abb2697be79b4ab61d63d74d85b0418629de8c26811b529f3f3780d0150063ff55a2beee74c4ec102a2a2731a1f1f7f10d473ad18a6a87"}

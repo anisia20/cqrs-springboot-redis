@@ -66,8 +66,8 @@ public class AuthService {
         }
 
         // ID, PWD 체크
-        //TODO 회원가입 만들어야
-        ClientDto tmp = new Clie함ntDto();
+        //TODO 회원가입 만들어야 함
+        ClientDto tmp = new ClientDto();
         tmp.setId(ar.getId());
         tmp.setPwd(ADMSHA512Hash.getDigest(ar.getPwd()));
         redisCmd.hput(RedisConstants.CQRS_H_CLIENT.key, ar.getId(), tmp);
