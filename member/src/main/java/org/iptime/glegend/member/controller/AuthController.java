@@ -1,6 +1,10 @@
 package org.iptime.glegend.member.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.log4j.Log4j2;
+import org.iptime.glegend.common.model.Result;
 import org.iptime.glegend.member.model.Auth;
 import org.iptime.glegend.member.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +24,19 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/auth/{randomNum}")
+    @ApiOperation(value="토큰 발급 ", notes="최초 토큰을 발급 한다.")
+    @ApiResponses({
+            @ApiResponse(code=200, response= Result.class, message = "토큰 발급 결과 "),
+    })
+    @PostMapping("/auth")
     public Mono<Object> auth(
             ServerHttpRequest request,
             ServerHttpResponse response,
-            @PathVariable("randomNum") String randomNum,
             @RequestBody Auth ar
     )
     {
         log.debug("parameter1(AuthRequest) = {}", ar);
-        return authService.authClient(request, response, randomNum, ar);
+        return authService.authClient(request, response, ar);
     }
 
     @PutMapping("/auth")

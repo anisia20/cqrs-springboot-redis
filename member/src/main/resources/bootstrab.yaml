@@ -1,3 +1,18 @@
+logging:
+  level:
+    springfox:
+      documentation: DEBUG
+
+springfox:
+  documentation:
+    swagger-ui:
+      base-url: /documentation
+    openApi:
+      v3:
+        path: /documentation/v3/api-docs
+    swagger:
+      v2:
+        path: /documentation/v2/api-docs
 spring:
   application:
     name: member

@@ -1,3 +1,4 @@
 /member/build/
 /common/build/
 /.idea/
+/docker/redis/

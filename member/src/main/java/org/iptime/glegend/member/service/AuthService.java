@@ -12,6 +12,7 @@ import org.iptime.glegend.config.redis.command.RedisCmd;
 import org.iptime.glegend.member.component.AuthManager;
 import org.iptime.glegend.member.model.Auth;
 import org.iptime.glegend.member.model.AuthResult;
+import org.iptime.glegend.utils.ADMSHA512Hash;
 import org.iptime.glegend.utils.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -49,7 +50,7 @@ public class AuthService {
 
     private String name=AuthService.class.getSimpleName();
 
-    public Mono<Object> authClient(ServerHttpRequest request, ServerHttpResponse response, String randomNum, Auth ar) {
+    public Mono<Object> authClient(ServerHttpRequest request, ServerHttpResponse response, Auth ar) {
         Result result = new Result();
         String ip = Util.getRemoteIpAddr(request);
 
@@ -65,7 +66,13 @@ public class AuthService {
         }
 
         // ID, PWD 체크
-        //TODO ID 체크
+        //TODO 회원가입 만들어야
+        ClientDto tmp = new Clie함ntDto();
+        tmp.setId(ar.getId());
+        tmp.setPwd(ADMSHA512Hash.getDigest(ar.getPwd()));
+        redisCmd.hput(RedisConstants.CQRS_H_CLIENT.key, ar.getId(), tmp);
+        //
+
         ClientDto clientDetails = (ClientDto) redisCmd.hget(RedisConstants.CQRS_H_CLIENT.key, ar.getId());
         if (clientDetails == null) {
             log.debug("cannot found cliId. C={}, ip={}", ar.getId());

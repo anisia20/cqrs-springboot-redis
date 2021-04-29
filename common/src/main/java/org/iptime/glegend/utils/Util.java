@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import org.iptime.glegend.common.code.ResultCode;
 import org.iptime.glegend.common.model.Result;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.ObjectUtils;
 
@@ -23,6 +24,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 @Log4j2
+@Configuration
 public class Util {
 
     // String, Array, Collection, Map

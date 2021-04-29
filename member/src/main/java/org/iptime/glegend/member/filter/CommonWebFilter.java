@@ -76,9 +76,9 @@ public class CommonWebFilter implements WebFilter {
 
         return chain.filter(webExchange)
                 .doAfterTerminate(() -> {
-                    log.info("request end. LK={}, id={}, ip={}, url={}, method={}, status={}, rslt={}, elapsed_time={}",
+                    log.info("request end. LK={}, id={}, ip={}, url={}, method={}, status={}, r={}, elapsed_time={}",
                             exchange.getRequest().getHeaders().get("logkey"), exchange.getAttributes().get("cliId"),
-                            ip, path, method, exchange.getResponse().getStatusCode(), exchange.getAttributes().get("rslt"),
+                            ip, path, method, exchange.getResponse().getStatusCode(), exchange.getAttributes().get("r"),
                             System.currentTimeMillis() - startTime);
                 });
     }
@@ -141,8 +141,8 @@ public class CommonWebFilter implements WebFilter {
                     String jsonStr = readBuffer(baos, buffer);
 
                     if (jsonStr != null) {
-                        exchange.getAttributes().put("rslt", jsonStr);
-                        log.info("response body. LK={}, id={}, ip={}, url={}, method={}, status={}, rslt={}",
+                        exchange.getAttributes().put("r", jsonStr);
+                        log.info("response body. LK={}, id={}, ip={}, url={}, method={}, status={}, r={}",
                                 exchange.getRequest().getHeaders().get("logkey"), exchange.getAttributes().get("cliId"),
                                 ip, path, method, exchange.getResponse().getStatusCode(), jsonStr);
                     }
@@ -160,8 +160,8 @@ public class CommonWebFilter implements WebFilter {
                 return super.writeAndFlushWith(Flux.from(body).map(publisher -> Flux.from(publisher).map(buffer -> {
                     String jsonStr = readBuffer(baos, buffer);
                     if (jsonStr != null) {
-                        exchange.getAttributes().put("rslt", jsonStr);
-                        log.info("response body. LK={}, id={}, ip={}, url={}, method={}, status={}, rslt={}",
+                        exchange.getAttributes().put("r", jsonStr);
+                        log.info("response body. LK={}, id={}, ip={}, url={}, method={}, status={}, r={}",
                                 exchange.getRequest().getHeaders().get("logkey"), exchange.getAttributes().get("cliId"),
                                 ip, path, method, exchange.getResponse().getStatusCode(), jsonStr);
                     }

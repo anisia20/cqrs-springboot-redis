@@ -47,6 +47,12 @@ public class WebSecurityConfig {
                 .authorizeExchange()
                 // 상위 권한 우선
 //				.pathMatchers(HttpMethod.PUT, "/v1/client/auth").hasRole("auth")
+                .pathMatchers("/documentation/**").permitAll() // 산출물 경로
+                .pathMatchers("/swagger-ui/**").permitAll() // 산출물 경로
+                .pathMatchers("favicon.ico").permitAll() // 산출물 경로
+                .pathMatchers("/swagger-resources/**").permitAll() // 산출물 경로
+                .pathMatchers("/v2/api-docs").permitAll() // 산출물 경로
+                .pathMatchers("/webjars/**").permitAll() // 산출물 경로
                 .pathMatchers("/v1/auth/**").permitAll()
                 .pathMatchers("/ext/**").permitAll() // 산출물 경로
                 .anyExchange().authenticated()

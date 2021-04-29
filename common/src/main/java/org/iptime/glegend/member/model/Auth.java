@@ -10,13 +10,13 @@ import javax.validation.constraints.Pattern;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Auth {
     /**
-     * CLIENT ID
+     *  ID
      */
-    @Pattern(regexp= "^[a-zA-Z0-9-_]{0,20}$", message="2011")
+    @Pattern(regexp= "^[a-zA-Z0-9-_]{0,20}$", message="100")
     String id ="";
 
     /**
-     * CLIENT Password
+     *  Password
      */
     @NotNull(message = "2013")
     String pwd = "";

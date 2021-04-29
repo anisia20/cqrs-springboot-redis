@@ -39,7 +39,7 @@ repositories {
     maven { url "https://jitpack.io" }
     maven { url "http://repo.spring.io/milestone" }
     maven { url 'https://repo.spring.io/libs-snapshot' }
-
+    jcenter()
     mavenLocal()
     mavenCentral()
 }
@@ -55,11 +55,6 @@ ext {
 dependencies {
     // webflux
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: '2.1.4.RELEASE'
-
-    // rest docs
-    compile "org.springframework.restdocs:spring-restdocs-webtestclient:${project.ext['spring-restdocs.version']}"
-    asciidoctor "org.springframework.restdocs:spring-restdocs-asciidoctor:${project.ext['spring-restdocs.version']}"
-    compile group: 'org.springframework.restdocs', name: 'spring-restdocs-core', version: '2.0.4.RELEASE'
 
     // log4j2
 
@@ -92,6 +87,13 @@ dependencies {
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.8'
     compile group: 'org.apache.httpcomponents', name: 'httpasyncclient', version: '4.1.4'
 
+    // swagger
+    compile group: 'org.springframework.plugin', name: 'spring-plugin-core', version: '2.0.0.RELEASE'
+    implementation "io.springfox:springfox-boot-starter:3.0.0"
+    compile group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
+    compile group: 'io.springfox', name: 'springfox-spring-webflux', version: '3.0.0'
+    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
+
     compile fileTree(dir:'libs', include:'*.jar')
     compile project(':common')
 
@@ -118,27 +120,6 @@ test {
     systemProperty "java.net.preferIPv4Stack", "true"
     outputs.dir snippetsDir
     testLogging.showStandardStreams = true
-}
-// rest docs
-asciidoctor {
-    inputs.dir snippetsDir
-    dependsOn test
-}
-
-asciidoctor.doLast {
-    copy {
-        from "build/asciidoc/html5"
-        into "src/main/resources/docs"
-        include 'client.html'
-    }
-}
-
-asciidoctor.doLast {
-    copy {
-        from "build/asciidoc/html5"
-        into "docs"
-        include '**'
-    }
 }
 
 bootJar {

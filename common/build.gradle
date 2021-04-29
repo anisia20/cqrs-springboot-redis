@@ -81,6 +81,8 @@ dependencies {
     // bean validation
     compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
 
+
+
     // ext lib
     compile fileTree(dir:'libs', include:'*.jar')
     compileOnly('org.projectlombok:lombok')

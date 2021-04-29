@@ -15,6 +15,7 @@ import org.springframework.core.env.AbstractEnvironment;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.reactive.config.EnableWebFlux;
 
 @SpringBootApplication
 @EnableScheduling
@@ -22,6 +23,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ComponentScans(value = {
         @ComponentScan("org.iptime.glegend"),
 })
+@EnableWebFlux
 public class MemberApplication {
 
     @Autowired
