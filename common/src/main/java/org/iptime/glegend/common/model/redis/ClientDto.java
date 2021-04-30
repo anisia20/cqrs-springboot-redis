@@ -20,4 +20,7 @@ public class ClientDto implements Serializable {
 
     /** 클라이언트 PWD. */
     private String pwd;
+
+    /** 클라이언트 PWD. */
+    private String updatdt;
 }

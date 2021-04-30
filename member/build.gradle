@@ -93,6 +93,7 @@ dependencies {
     compile group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
     compile group: 'io.springfox', name: 'springfox-spring-webflux', version: '3.0.0'
     compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
+    compile group: 'io.springfox', name: 'springfox-bean-validators', version: '3.0.0'
 
     compile fileTree(dir:'libs', include:'*.jar')
     compile project(':common')

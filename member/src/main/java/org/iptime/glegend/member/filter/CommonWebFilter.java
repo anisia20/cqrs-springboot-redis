@@ -53,7 +53,7 @@ public class CommonWebFilter implements WebFilter {
         else {
             if (path.indexOf("client") > 0) cliId = exchange.getRequest().getQueryParams().getFirst("id");
         }
-        if (cliId != null) exchange.getAttributes().put("cliId", cliId);
+        if (cliId != null) exchange.getAttributes().put("id", cliId);
 
         String logkey = uuidMaker.nextKey(uuidMaker.TGC);
         exchange.mutate().request(builder -> {

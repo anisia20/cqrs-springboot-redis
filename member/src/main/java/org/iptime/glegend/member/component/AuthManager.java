@@ -1,11 +1,15 @@
 package org.iptime.glegend.member.component;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.iptime.glegend.common.command.JwtCmd;
+import org.iptime.glegend.common.constants.RedisConstants;
+import org.iptime.glegend.common.model.redis.ClientDto;
+import org.iptime.glegend.common.util.TimeG;
 import org.iptime.glegend.utils.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.AbstractEnvironment;
@@ -17,18 +21,22 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.server.ServerWebExchange;
 
 import io.jsonwebtoken.Claims;
 import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Mono;
 
+import org.iptime.glegend.common.components.CommonResourceManager;
+
 @Log4j2
 @Component
 public class AuthManager implements ReactiveAuthenticationManager {
     @Autowired
     private JwtCmd jwtCmd;
+
+    @Autowired
+    private CommonResourceManager resourceManager;
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
@@ -67,11 +75,11 @@ public class AuthManager implements ReactiveAuthenticationManager {
                 return Mono.empty();
             }
 
-            if (uri.startsWith("/v1/client")) {
+            if (uri.startsWith("/v1/auth")) {
                 subject = payload.getSubject();
-                swe.getAttributes().put("cliId", subject);
+                swe.getAttributes().put("id", subject);
                 //TODO key 정의 해야함
-                secretKey = "csmtest";
+                secretKey = "glegend";
             }
             else {
                 log.debug("uri is unknown. uri={}", uri);
@@ -96,47 +104,16 @@ public class AuthManager implements ReactiveAuthenticationManager {
         log.debug("token pass. C={}, exp={}s", subject, (claims.getExpiration().getTime()-System.currentTimeMillis())/1000);
 
         List<String> rolesMap = null;
-        if (uri.startsWith("/v1/client")) {
-            String sIp = (String) claims.get("sIp");
-            try {
-                // localhost 에서 gradle test 시, ip address 를 못가져오는 경우가 발생하여 추가함
-                String cliIp = null;
-                if (System.getProperty(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME) != null) {
-                    cliIp = Util.getRemoteIpAddr(request);
-                    if (cliIp == null) {
-                        log.error("cannot gathering ip. C={}", subject);
-                        response.setStatusCode(HttpStatus.NON_AUTHORITATIVE_INFORMATION);
-                        return Mono.empty();
-                    }
-
-                    boolean isPass = Util.isValidIPAddr(cliIp, sIp.split(","));
-                    if (isPass == false) {
-                        log.warn("sIp is incorrect. C={}, token={}, request={}", subject, sIp, cliIp);
-                        response.setStatusCode(HttpStatus.NON_AUTHORITATIVE_INFORMATION);
-                        return Mono.empty();
-                    }
-                }
-                log.debug("ip pass. cliIp={}", cliIp);
-            } catch (Exception e) {
-                log.error("err={}", subject, e.getMessage(), e);
+        if (uri.startsWith("/v1/auth")) {
+            ClientDto dto = (ClientDto) resourceManager.getRedisCmd().hget(RedisConstants.CQRS_H_CLIENT.key, subject);
+            if(dto == null) {
+                log.error("id is none C={}", subject);
                 response.setStatusCode(HttpStatus.NON_AUTHORITATIVE_INFORMATION);
                 return Mono.empty();
             }
-
-
-            // client session time update (rpt time)
-            if(uri.startsWith("/v1/client")) {
-                //TODO ID 인증
-                /*ClientDto dto = (ClientDto)resourceManager.getRedisCmd().hget(RedisConf.CQRS_H_CLIENT.key, subject);
-                if(dto == null) {
-                    log.error("cliId is none C={}", subject);
-                    response.setStatusCode(HttpStatus.NON_AUTHORITATIVE_INFORMATION);
-                    return Mono.empty();
-                }
-                dto.setRpt_req_dt(Time.toFormat14());
-                resourceManager.getRedisCmd().hput(RedisConf.CQRS_H_CLIENT.key, subject, dto);
-                log.debug("id pass. cliId={}", dto.getCli_id());*/
-            }
+            dto.setUpdatdt(TimeG.toFormat14());
+            resourceManager.getRedisCmd().hput(RedisConstants.CQRS_H_CLIENT.key, subject, dto);
+            log.debug("id pass. id={}", dto.getId());
 
             // role read and save
             try {

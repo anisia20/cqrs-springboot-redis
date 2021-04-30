@@ -3,8 +3,10 @@ package org.iptime.glegend.member.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import lombok.extern.log4j.Log4j2;
 import org.iptime.glegend.common.model.Result;
+import org.iptime.glegend.member.config.SwaggerConfig;
 import org.iptime.glegend.member.model.Auth;
 import org.iptime.glegend.member.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Log4j2
 @RestController
@@ -30,8 +33,8 @@ public class AuthController {
     })
     @PostMapping("/auth")
     public Mono<Object> auth(
-            ServerHttpRequest request,
-            ServerHttpResponse response,
+            @ApiIgnore ServerHttpRequest request,
+            @ApiIgnore ServerHttpResponse response,
             @RequestBody Auth ar
     )
     {
@@ -39,12 +42,16 @@ public class AuthController {
         return authService.authClient(request, response, ar);
     }
 
+    @ApiOperation(value="토큰 갱신 ", notes="토큰을 갱신 한다.", authorizations = { @Authorization("asdfasdf") })
+    @ApiResponses({
+            @ApiResponse(code=200, response= Result.class, message = "토큰 발급 결과 "),
+    })
     @PutMapping("/auth")
     @PreAuthorize("hasRole('admin') OR hasRole('auth')")
     public Mono<Object> refresh(
             @AuthenticationPrincipal String cliId,
-            ServerWebExchange swe,
-            ServerHttpRequest request
+            @ApiIgnore ServerWebExchange swe,
+            @ApiIgnore ServerHttpRequest request
     )
     {
         log.debug("refresh call");
